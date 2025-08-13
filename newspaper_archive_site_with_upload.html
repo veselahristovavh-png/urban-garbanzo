@@ -1,0 +1,90 @@
+
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <title>Архив с Вестникарски Изрезки</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1 { color: #333; }
+        .search-box, .upload-box { margin-bottom: 20px; }
+        input, textarea { display: block; margin-top: 5px; margin-bottom: 10px; width: 300px; }
+        .snippet { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Архив с Вестникарски Изрезки</h1>
+
+    <div class="search-box">
+        <h2>Търсене</h2>
+        <input type="text" id="searchKeyword" placeholder="Ключова дума">
+        <input type="text" id="searchSource" placeholder="Източник">
+        <input type="text" id="searchDescription" placeholder="Описание">
+        <button onclick="searchSnippets()">Търси</button>
+    </div>
+
+    <div class="upload-box">
+        <h2>Качване на нова изрезка</h2>
+        <input type="text" id="newKeyword" placeholder="Ключова дума">
+        <input type="text" id="newSource" placeholder="Източник">
+        <textarea id="newDescription" placeholder="Описание"></textarea>
+        <button onclick="uploadSnippet()">Качи</button>
+    </div>
+
+    <div id="results"></div>
+
+    <script>
+        let snippets = [
+            { keyword: "икономика", source: "вестник Капитал", description: "Анализ на икономическите тенденции през 2023 г." },
+            { keyword: "политика", source: "вестник Сега", description: "Интервю с министър-председателя." }
+        ];
+
+        function displaySnippets(filteredSnippets) {
+            const resultsDiv = document.getElementById("results");
+            resultsDiv.innerHTML = "";
+            filteredSnippets.forEach(snippet => {
+                const div = document.createElement("div");
+                div.className = "snippet";
+                div.innerHTML = `<strong>Ключова дума:</strong> ${snippet.keyword}<br>
+                                 <strong>Източник:</strong> ${snippet.source}<br>
+                                 <strong>Описание:</strong> ${snippet.description}`;
+                resultsDiv.appendChild(div);
+            });
+        }
+
+        function searchSnippets() {
+            const keyword = document.getElementById("searchKeyword").value.toLowerCase();
+            const source = document.getElementById("searchSource").value.toLowerCase();
+            const description = document.getElementById("searchDescription").value.toLowerCase();
+
+            const filtered = snippets.filter(snippet =>
+                snippet.keyword.toLowerCase().includes(keyword) &&
+                snippet.source.toLowerCase().includes(source) &&
+                snippet.description.toLowerCase().includes(description)
+            );
+
+            displaySnippets(filtered);
+        }
+
+        function uploadSnippet() {
+            const keyword = document.getElementById("newKeyword").value;
+            const source = document.getElementById("newSource").value;
+            const description = document.getElementById("newDescription").value;
+
+            if (keyword && source && description) {
+                snippets.push({ keyword, source, description });
+                alert("Изрезката е добавена успешно!");
+                document.getElementById("newKeyword").value = "";
+                document.getElementById("newSource").value = "";
+                document.getElementById("newDescription").value = "";
+                displaySnippets(snippets);
+            } else {
+                alert("Моля, попълнете всички полета.");
+            }
+        }
+
+        // Initial display
+        displaySnippets(snippets);
+    </script>
+</body>
+</html>
