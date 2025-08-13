@@ -1,0 +1,114 @@
+
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <title>Интервюта</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        form, .search-box { margin-bottom: 30px; }
+        input, textarea { display: block; margin: 10px 0; width: 100%; padding: 8px; }
+        label { font-weight: bold; }
+        .results { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Интервюта</h1>
+    <form id="uploadForm" enctype="multipart/form-data">
+        <label for="image">Качи изображение:</label>
+        <input type="file" id="image" name="image" accept="image/*">
+
+        <label for="title">Заглавие:</label>
+        <input type="text" id="title" name="title">
+
+        <label for="keywords">Ключови думи:</label>
+        <input type="text" id="keywords" name="keywords">
+
+        <label for="author">Автор:</label>
+        <input type="text" id="author" name="author">
+
+        <label for="source">Източник:</label>
+        <input type="text" id="source" name="source">
+
+        <label for="date">Дата:</label>
+        <input type="date" id="date" name="date">
+
+        <label for="digitized_by">Име на дигитализирал:</label>
+        <input type="text" id="digitized_by" name="digitized_by">
+
+        <button type="button" onclick="extractText()">Извлечи текст (OCR)</button>
+    </form>
+
+    <div class="search-box">
+        <label for="search">Търси по ключови думи, автор и заглавие:</label>
+        <input type="text" id="search" onkeyup="searchEntries()">
+    </div>
+
+    <div class="results" id="results"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.1/dist/tesseract.min.js"></script>
+    <script>
+        let entries = [];
+
+        function extractText() {
+            const image = document.getElementById('image').files[0];
+            if (!image) {
+                alert("Моля, качете изображение.");
+                return;
+            }
+
+            Tesseract.recognize(
+                image,
+                'bul',
+                { logger: m => console.log(m) }
+            ).then(({ data: { text } }) => {
+                alert("Извлечен текст: " + text);
+                saveEntry(text);
+            });
+        }
+
+        function saveEntry(ocrText) {
+            const entry = {
+                title: document.getElementById('title').value,
+                keywords: document.getElementById('keywords').value,
+                author: document.getElementById('author').value,
+                source: document.getElementById('source').value,
+                date: document.getElementById('date').value,
+                digitized_by: document.getElementById('digitized_by').value,
+                ocrText: ocrText
+            };
+            entries.push(entry);
+            displayEntries(entries);
+        }
+
+        function searchEntries() {
+            const query = document.getElementById('search').value.toLowerCase();
+            const filtered = entries.filter(e =>
+                e.title.toLowerCase().includes(query) ||
+                e.keywords.toLowerCase().includes(query) ||
+                e.author.toLowerCase().includes(query)
+            );
+            displayEntries(filtered);
+        }
+
+        function displayEntries(data) {
+            const container = document.getElementById('results');
+            container.innerHTML = "";
+            data.forEach((e, i) => {
+                container.innerHTML += `
+                    <div>
+                        <h3>${e.title}</h3>
+                        <p><strong>Автор:</strong> ${e.author}</p>
+                        <p><strong>Ключови думи:</strong> ${e.keywords}</p>
+                        <p><strong>Източник:</strong> ${e.source}</p>
+                        <p><strong>Дата:</strong> ${e.date}</p>
+                        <p><strong>Дигитализирал:</strong> ${e.digitized_by}</p>
+                        <p><strong>OCR текст:</strong> ${e.ocrText}</p>
+                        <hr>
+                    </div>
+                `;
+            });
+        }
+    </script>
+</body>
+</html>
